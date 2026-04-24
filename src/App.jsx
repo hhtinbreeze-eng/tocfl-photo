@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 const OUTPUT_WIDTH = 600;
 const OUTPUT_HEIGHT = 800;
@@ -35,6 +34,60 @@ const i18n = {
       "只需要脖子以上",
       "背景須為純白色 #FFFFFF",
       "頭頂與下巴不可被切掉",
+    ],
+  },
+  en: {
+    title: "TOCFL ID Photo Processor",
+    passport: "Passport No.",
+    name: "Name",
+    upload: "Upload Photo",
+    processing: "Processing...",
+    initModel: "Initializing model...",
+    zoom: "Zoom",
+    moveX: "Move X",
+    moveY: "Move Y",
+    download: "Download Photo",
+    bgStatus: "Background",
+    bgWhite: "Near-white detected; original hair details preserved",
+    bgNotWhite: "Non-white detected; background removed",
+    exampleTitle: "Qualified Example",
+    exampleError: "Please place example-qualified.jpg in public folder",
+    placeholder: "Upload a photo to start",
+    disclaimerTitle: "Disclaimer",
+    disclaimer:
+      "This tool only assists with cropping and background processing. Final approval depends on official TOCFL review.",
+    hints: [
+      "Face/head should cover about 80%",
+      "Neck and above only",
+      "Pure white background #FFFFFF",
+      "Do not crop the head top or chin",
+    ],
+  },
+  vi: {
+    title: "Hệ thống xử lý ảnh TOCFL",
+    passport: "Số hộ chiếu",
+    name: "Họ và tên",
+    upload: "Tải ảnh lên",
+    processing: "Đang xử lý...",
+    initModel: "Đang khởi tạo...",
+    zoom: "Phóng to / thu nhỏ",
+    moveX: "Di chuyển ngang",
+    moveY: "Di chuyển dọc",
+    download: "Tải ảnh xuống",
+    bgStatus: "Trạng thái nền",
+    bgWhite: "Nền gần trắng; giữ chi tiết tóc gốc",
+    bgNotWhite: "Nền không trắng; đã tự động xóa nền",
+    exampleTitle: "Ví dụ ảnh đạt chuẩn",
+    exampleError: "Vui lòng đặt example-qualified.jpg vào thư mục public",
+    placeholder: "Vui lòng tải ảnh lên để bắt đầu",
+    disclaimerTitle: "Lưu ý",
+    disclaimer:
+      "Hệ thống chỉ hỗ trợ cắt ảnh và xử lý nền. Kết quả cuối cùng tùy thuộc vào xét duyệt chính thức của TOCFL.",
+    hints: [
+      "Khuôn mặt / đầu chiếm khoảng 80%",
+      "Chỉ lấy từ cổ trở lên",
+      "Nền trắng tinh #FFFFFF",
+      "Không cắt mất đỉnh đầu hoặc cằm",
     ],
   },
 };
@@ -79,7 +132,8 @@ function GuideLines() {
 }
 
 export default function App() {
-  const t = i18n.zh;
+  const [lang, setLang] = useState("zh");
+  const t = i18n[lang];
 
   const [passport, setPassport] = useState("");
   const [userName, setUserName] = useState("");
@@ -106,45 +160,63 @@ export default function App() {
   });
 
   useEffect(() => {
-    try {
-      const model = new SelfieSegmentation({
-        locateFile: (file) => `${MEDIAPIPE_PATH}${file}`,
-      });
+    const script = document.createElement("script");
+    script.src = `${MEDIAPIPE_PATH}selfie_segmentation.js`;
 
-      model.setOptions({
-        modelSelection: 1,
-      });
+    script.onload = () => {
+      try {
+        if (!window.SelfieSegmentation) {
+          throw new Error("window.SelfieSegmentation is not available");
+        }
 
-      model.onResults((results) => {
-        const img = sourceImageRef.current;
-        if (!img) return;
+        const model = new window.SelfieSegmentation({
+          locateFile: (file) => `${MEDIAPIPE_PATH}${file}`,
+        });
 
-        const offCanvas = document.createElement("canvas");
-        offCanvas.width = img.width;
-        offCanvas.height = img.height;
+        model.setOptions({
+          modelSelection: 1,
+        });
 
-        const ctx = offCanvas.getContext("2d");
-        ctx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+        model.onResults((results) => {
+          const img = sourceImageRef.current;
+          if (!img) return;
 
-        ctx.drawImage(results.segmentationMask, 0, 0, img.width, img.height);
-        ctx.globalCompositeOperation = "source-in";
-        ctx.drawImage(img, 0, 0, img.width, img.height);
+          const offCanvas = document.createElement("canvas");
+          offCanvas.width = img.width;
+          offCanvas.height = img.height;
 
-        drawableImageRef.current = offCanvas;
-        setHasImage(true);
-        setIsProcessing(false);
-        scheduleDraw();
-      });
+          const ctx = offCanvas.getContext("2d");
+          ctx.clearRect(0, 0, offCanvas.width, offCanvas.height);
 
-      segmentationRef.current = model;
-      setIsModelLoaded(true);
-    } catch (err) {
-      console.error(err);
-      setError("MediaPipe 初始化失敗，請確認 public/mediapipe/ 檔案是否已放入。");
-    }
+          ctx.drawImage(results.segmentationMask, 0, 0, img.width, img.height);
+          ctx.globalCompositeOperation = "source-in";
+          ctx.drawImage(img, 0, 0, img.width, img.height);
+
+          drawableImageRef.current = offCanvas;
+          setHasImage(true);
+          setIsProcessing(false);
+          scheduleDraw();
+        });
+
+        segmentationRef.current = model;
+        setIsModelLoaded(true);
+      } catch (err) {
+        console.error(err);
+        setError("MediaPipe 初始化失敗，請確認 public/mediapipe/ 檔案是否完整。");
+      }
+    };
+
+    script.onerror = () => {
+      setError(
+        "MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。"
+      );
+    };
+
+    document.body.appendChild(script);
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
 
@@ -319,6 +391,20 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 text-gray-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-2xl font-bold text-blue-900">{t.title}</h1>
+
+        <div className="flex bg-white rounded-lg shadow-sm border overflow-hidden">
+          {["zh", "en", "vi"].map((l) => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                lang === l ? "bg-blue-600 text-white" : "hover:bg-gray-100"
+              }`}
+            >
+              {l === "zh" ? "中文" : l === "en" ? "EN" : "Tiếng Việt"}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

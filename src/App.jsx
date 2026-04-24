@@ -98,35 +98,9 @@ function GuideLines() {
       className="absolute inset-0 w-full h-full pointer-events-none"
       viewBox={`0 0 ${OUTPUT_WIDTH} ${OUTPUT_HEIGHT}`}
     >
-      <line
-        x1="0"
-        y1={TARGET_TOP_Y}
-        x2={OUTPUT_WIDTH}
-        y2={TARGET_TOP_Y}
-        stroke="red"
-        strokeWidth="2"
-        strokeDasharray="6 6"
-        opacity="0.75"
-      />
-      <line
-        x1="0"
-        y1={TARGET_CHIN_Y}
-        x2={OUTPUT_WIDTH}
-        y2={TARGET_CHIN_Y}
-        stroke="red"
-        strokeWidth="2"
-        strokeDasharray="6 6"
-        opacity="0.75"
-      />
-      <line
-        x1={OUTPUT_WIDTH / 2}
-        y1="0"
-        x2={OUTPUT_WIDTH / 2}
-        y2={OUTPUT_HEIGHT}
-        stroke="red"
-        strokeWidth="1"
-        opacity="0.35"
-      />
+      <line x1="0" y1={TARGET_TOP_Y} x2={OUTPUT_WIDTH} y2={TARGET_TOP_Y} stroke="red" strokeWidth="2" strokeDasharray="6 6" opacity="0.75" />
+      <line x1="0" y1={TARGET_CHIN_Y} x2={OUTPUT_WIDTH} y2={TARGET_CHIN_Y} stroke="red" strokeWidth="2" strokeDasharray="6 6" opacity="0.75" />
+      <line x1={OUTPUT_WIDTH / 2} y1="0" x2={OUTPUT_WIDTH / 2} y2={OUTPUT_HEIGHT} stroke="red" strokeWidth="1" opacity="0.35" />
     </svg>
   );
 }
@@ -153,11 +127,7 @@ export default function App() {
   const segmentationRef = useRef(null);
   const rafRef = useRef(null);
 
-  const manualRef = useRef({
-    scale: 1,
-    moveX: 0,
-    moveY: 0,
-  });
+  const manualRef = useRef({ scale: 1, moveX: 0, moveY: 0 });
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -173,9 +143,7 @@ export default function App() {
           locateFile: (file) => `${MEDIAPIPE_PATH}${file}`,
         });
 
-        model.setOptions({
-          modelSelection: 1,
-        });
+        model.setOptions({ modelSelection: 1 });
 
         model.onResults((results) => {
           const img = sourceImageRef.current;
@@ -187,7 +155,6 @@ export default function App() {
 
           const ctx = offCanvas.getContext("2d");
           ctx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-
           ctx.drawImage(results.segmentationMask, 0, 0, img.width, img.height);
           ctx.globalCompositeOperation = "source-in";
           ctx.drawImage(img, 0, 0, img.width, img.height);
@@ -207,9 +174,7 @@ export default function App() {
     };
 
     script.onerror = () => {
-      setError(
-        "MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。"
-      );
+      setError("MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。");
     };
 
     document.body.appendChild(script);
@@ -243,10 +208,7 @@ export default function App() {
           const g = data[i + 1];
           const b = data[i + 2];
 
-          if (r > 235 && g > 235 && b > 235) {
-            whiteCount++;
-          }
-
+          if (r > 235 && g > 235 && b > 235) whiteCount++;
           total++;
         }
       }
@@ -258,7 +220,6 @@ export default function App() {
   function draw() {
     const canvas = previewCanvasRef.current;
     const img = drawableImageRef.current || sourceImageRef.current;
-
     if (!canvas || !img) return;
 
     const ctx = canvas.getContext("2d");
@@ -268,11 +229,7 @@ export default function App() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
 
-    const baseScale = Math.min(
-      OUTPUT_WIDTH / img.width,
-      OUTPUT_HEIGHT / img.height
-    );
-
+    const baseScale = Math.min(OUTPUT_WIDTH / img.width, OUTPUT_HEIGHT / img.height);
     const finalScale = baseScale * scale;
     const drawW = img.width * finalScale;
     const drawH = img.height * finalScale;
@@ -285,7 +242,6 @@ export default function App() {
 
   function scheduleDraw() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-
     rafRef.current = requestAnimationFrame(() => {
       draw();
       rafRef.current = null;
@@ -293,12 +249,7 @@ export default function App() {
   }
 
   function resetSliders() {
-    manualRef.current = {
-      scale: 1,
-      moveX: 0,
-      moveY: 0,
-    };
-
+    manualRef.current = { scale: 1, moveX: 0, moveY: 0 };
     setScaleValue(1);
     setMoveXValue(0);
     setMoveYValue(0);
@@ -392,7 +343,7 @@ export default function App() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-2xl font-bold text-blue-900">{t.title}</h1>
 
-        <div className="flex bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="flex bg-white rounded-lg shadow-sm border overflow-hidden order-first md:order-none">
           {["zh", "en", "vi"].map((l) => (
             <button
               key={l}
@@ -408,67 +359,71 @@ export default function App() {
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit">
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-600">
-              {t.passport}
-            </label>
-            <input
-              type="text"
-              value={passport}
-              onChange={(e) => setPassport(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Ex: A123456789"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1 text-gray-600">
-              {t.name}
-            </label>
-            <input
-              type="text"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Ex: WANG XIAO MING"
-            />
-          </div>
-
-          <div className="pt-4 border-t">
-            {!isModelLoaded ? (
-              <div className="text-blue-600 animate-pulse font-medium text-center">
-                {t.initModel}
-              </div>
-            ) : (
-              <label className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl cursor-pointer transition shadow-lg font-bold">
-                {isProcessing ? t.processing : t.upload}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  disabled={isProcessing}
-                />
+        <div className="contents lg:block">
+          <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit order-2 lg:order-none">
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-600">
+                {t.passport}
               </label>
+              <input
+                type="text"
+                value={passport}
+                onChange={(e) => setPassport(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Ex: A123456789"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1 text-gray-600">
+                {t.name}
+              </label>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Ex: WANG XIAO MING"
+              />
+            </div>
+
+            <div className="pt-4 border-t">
+              {!isModelLoaded ? (
+                <div className="text-blue-600 animate-pulse font-medium text-center">
+                  {t.initModel}
+                </div>
+              ) : (
+                <label className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl cursor-pointer transition shadow-lg font-bold">
+                  {isProcessing ? t.processing : t.upload}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    disabled={isProcessing}
+                  />
+                </label>
+              )}
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+                {error}
+              </div>
             )}
           </div>
 
           {hasImage && (
-            <div className="space-y-6 pt-4">
+            <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit mt-8 order-5 lg:order-none">
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
-                <span className="font-bold text-blue-800">
-                  {t.bgStatus}:{" "}
-                </span>
+                <span className="font-bold text-blue-800">{t.bgStatus}: </span>
                 {bgStatusText}
               </div>
 
               <div>
                 <div className="flex justify-between text-xs font-bold text-gray-500">
                   <span>{t.zoom}</span>
-                  <span className="text-blue-600">
-                    {Math.round(scaleValue * 100)}%
-                  </span>
+                  <span className="text-blue-600">{Math.round(scaleValue * 100)}%</span>
                 </div>
                 <input
                   type="range"
@@ -514,15 +469,9 @@ export default function App() {
               </div>
             </div>
           )}
-
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-              {error}
-            </div>
-          )}
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit">
+        <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit order-1 lg:order-none">
           <h3 className="text-lg font-bold text-gray-700 border-b pb-2">
             {t.exampleTitle}
           </h3>
@@ -548,10 +497,7 @@ export default function App() {
 
           <ul className="space-y-2">
             {t.hints.map((hint, index) => (
-              <li
-                key={index}
-                className="flex items-start gap-2 text-sm text-gray-600"
-              >
+              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
                 <span className="text-green-500 font-bold">✓</span>
                 {hint}
               </li>
@@ -559,8 +505,8 @@ export default function App() {
           </ul>
         </div>
 
-        <div className="flex flex-col items-center h-fit">
-          <div className="relative bg-white shadow-2xl border border-gray-200 overflow-hidden rounded-sm w-full max-w-[360px] aspect-[3/4]">
+        <div className="contents lg:flex lg:flex-col lg:items-center lg:h-fit">
+          <div className="relative bg-white shadow-2xl border border-gray-200 overflow-hidden rounded-sm w-full max-w-[360px] aspect-[3/4] mx-auto order-4 lg:order-none">
             <canvas
               ref={previewCanvasRef}
               width={OUTPUT_WIDTH}
@@ -587,21 +533,19 @@ export default function App() {
           <button
             onClick={handleDownload}
             disabled={!hasImage}
-            className={`mt-8 w-full max-w-[360px] py-4 rounded-xl text-white font-bold text-lg shadow-lg transition ${
-              hasImage
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-gray-400 cursor-not-allowed"
+            className={`mt-8 w-full max-w-[360px] py-4 rounded-xl text-white font-bold text-lg shadow-lg transition mx-auto order-6 lg:order-none ${
+              hasImage ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
             }`}
           >
             {t.download}
           </button>
 
-          <div className="mt-4 max-w-[360px] p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+          <div className="mt-4 max-w-[360px] p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 mx-auto order-7 lg:order-none">
             <p className="font-bold mb-1">{t.disclaimerTitle}</p>
             {t.disclaimer}
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center order-8 lg:order-none">
             <div className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-[11px] text-indigo-400 tracking-[0.2em] uppercase font-semibold shadow-sm">
               Rita H × AI Collaboration
             </div>

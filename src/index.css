@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 額外修正：確保畫布不會超出螢幕 */
+canvas {
+  max-width: 100%;
+  height: auto;
+}

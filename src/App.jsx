@@ -8,11 +8,16 @@ const TARGET_CHIN_Y = OUTPUT_HEIGHT * 0.88;
 const EXAMPLE_SRC = `${import.meta.env.BASE_URL}example-qualified.jpg`;
 const MEDIAPIPE_PATH = `${import.meta.env.BASE_URL}mediapipe/`;
 
+const LIKE_API_URL =
+  "https://script.google.com/macros/s/AKfycbwabwvyMDzc-pdf3n6-aqpskgPkgczRXWpVO0_hxUSZKFY-1ZTvFT2N2OZ4CkDvYEjjuQ/exec";
+
 const i18n = {
   zh: {
     title: "華測會大頭照處理系統",
     passport: "護照號碼",
     name: "姓名",
+    personalDataNote:
+      "護照及姓名僅供照片檔案命名使用，不另作其他用途，以確保您的個資安全。",
     upload: "上傳照片",
     processing: "處理中...",
     initModel: "正在初始化模型...",
@@ -29,6 +34,9 @@ const i18n = {
     disclaimerTitle: "重要聲明",
     disclaimer:
       "本系統僅提供照片裁切與背景處理輔助，下載照片不保證一定通過華測會審核，最終仍以官方審核為準。",
+    likeButton: "覺得這項服務有幫助嗎？請幫我點個讚吧！",
+    likedButton: "謝謝您的支持！",
+    likes: "個讚",
     hints: [
       "頭部／臉部約占畫面 80%",
       "只需要脖子以上",
@@ -40,6 +48,8 @@ const i18n = {
     title: "TOCFL ID Photo Processor",
     passport: "Passport No.",
     name: "Name",
+    personalDataNote:
+      "Passport number and name are only used for photo file naming and will not be used for any other purpose.",
     upload: "Upload Photo",
     processing: "Processing...",
     initModel: "Initializing model...",
@@ -56,6 +66,9 @@ const i18n = {
     disclaimerTitle: "Disclaimer",
     disclaimer:
       "This tool only assists with cropping and background processing. Final approval depends on official TOCFL review.",
+    likeButton: "Is this service helpful? Please give it a like!",
+    likedButton: "Thank you for your support!",
+    likes: "likes",
     hints: [
       "Face/head should cover about 80%",
       "Neck and above only",
@@ -67,6 +80,8 @@ const i18n = {
     title: "Hệ thống xử lý ảnh TOCFL",
     passport: "Số hộ chiếu",
     name: "Họ và tên",
+    personalDataNote:
+      "Số hộ chiếu và tên chỉ được dùng để đặt tên file ảnh, không sử dụng cho mục đích khác.",
     upload: "Tải ảnh lên",
     processing: "Đang xử lý...",
     initModel: "Đang khởi tạo...",
@@ -83,6 +98,9 @@ const i18n = {
     disclaimerTitle: "Lưu ý",
     disclaimer:
       "Hệ thống chỉ hỗ trợ cắt ảnh và xử lý nền. Kết quả cuối cùng tùy thuộc vào xét duyệt chính thức của TOCFL.",
+    likeButton: "Dịch vụ này có hữu ích không? Hãy bấm thích giúp tôi nhé!",
+    likedButton: "Cảm ơn bạn đã ủng hộ!",
+    likes: "lượt thích",
     hints: [
       "Khuôn mặt / đầu chiếm khoảng 80%",
       "Chỉ lấy từ cổ trở lên",
@@ -98,9 +116,35 @@ function GuideLines() {
       className="absolute inset-0 w-full h-full pointer-events-none"
       viewBox={`0 0 ${OUTPUT_WIDTH} ${OUTPUT_HEIGHT}`}
     >
-      <line x1="0" y1={TARGET_TOP_Y} x2={OUTPUT_WIDTH} y2={TARGET_TOP_Y} stroke="red" strokeWidth="2" strokeDasharray="6 6" opacity="0.75" />
-      <line x1="0" y1={TARGET_CHIN_Y} x2={OUTPUT_WIDTH} y2={TARGET_CHIN_Y} stroke="red" strokeWidth="2" strokeDasharray="6 6" opacity="0.75" />
-      <line x1={OUTPUT_WIDTH / 2} y1="0" x2={OUTPUT_WIDTH / 2} y2={OUTPUT_HEIGHT} stroke="red" strokeWidth="1" opacity="0.35" />
+      <line
+        x1="0"
+        y1={TARGET_TOP_Y}
+        x2={OUTPUT_WIDTH}
+        y2={TARGET_TOP_Y}
+        stroke="red"
+        strokeWidth="2"
+        strokeDasharray="6 6"
+        opacity="0.75"
+      />
+      <line
+        x1="0"
+        y1={TARGET_CHIN_Y}
+        x2={OUTPUT_WIDTH}
+        y2={TARGET_CHIN_Y}
+        stroke="red"
+        strokeWidth="2"
+        strokeDasharray="6 6"
+        opacity="0.75"
+      />
+      <line
+        x1={OUTPUT_WIDTH / 2}
+        y1="0"
+        x2={OUTPUT_WIDTH / 2}
+        y2={OUTPUT_HEIGHT}
+        stroke="red"
+        strokeWidth="1"
+        opacity="0.35"
+      />
     </svg>
   );
 }
@@ -121,13 +165,41 @@ export default function App() {
   const [moveXValue, setMoveXValue] = useState(0);
   const [moveYValue, setMoveYValue] = useState(0);
 
+  const [likes, setLikes] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+
   const previewCanvasRef = useRef(null);
   const sourceImageRef = useRef(null);
   const drawableImageRef = useRef(null);
   const segmentationRef = useRef(null);
   const rafRef = useRef(null);
 
-  const manualRef = useRef({ scale: 1, moveX: 0, moveY: 0 });
+  const manualRef = useRef({
+    scale: 1,
+    moveX: 0,
+    moveY: 0,
+  });
+
+  useEffect(() => {
+    const liked = localStorage.getItem("tocfl_photo_liked") === "yes";
+    setHasLiked(liked);
+
+    async function loadLikes() {
+      try {
+        const response = await fetch(LIKE_API_URL);
+        const data = await response.json();
+
+        if (data.ok) {
+          setLikes(Number(data.count) || 0);
+        }
+      } catch (err) {
+        console.error("Failed to load likes:", err);
+      }
+    }
+
+    loadLikes();
+  }, []);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -143,7 +215,9 @@ export default function App() {
           locateFile: (file) => `${MEDIAPIPE_PATH}${file}`,
         });
 
-        model.setOptions({ modelSelection: 1 });
+        model.setOptions({
+          modelSelection: 1,
+        });
 
         model.onResults((results) => {
           const img = sourceImageRef.current;
@@ -155,6 +229,7 @@ export default function App() {
 
           const ctx = offCanvas.getContext("2d");
           ctx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+
           ctx.drawImage(results.segmentationMask, 0, 0, img.width, img.height);
           ctx.globalCompositeOperation = "source-in";
           ctx.drawImage(img, 0, 0, img.width, img.height);
@@ -174,7 +249,9 @@ export default function App() {
     };
 
     script.onerror = () => {
-      setError("MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。");
+      setError(
+        "MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。"
+      );
     };
 
     document.body.appendChild(script);
@@ -184,6 +261,31 @@ export default function App() {
       if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
+
+  async function handleLike() {
+    if (hasLiked || likeLoading) return;
+
+    setLikeLoading(true);
+
+    try {
+      const response = await fetch(LIKE_API_URL, {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        setLikes(Number(data.count) || likes + 1);
+        setHasLiked(true);
+        localStorage.setItem("tocfl_photo_liked", "yes");
+      }
+    } catch (err) {
+      console.error("Failed to like:", err);
+      alert("按讚失敗，請稍後再試。");
+    } finally {
+      setLikeLoading(false);
+    }
+  }
 
   function isNearWhiteBackground(img) {
     const sampleCanvas = document.createElement("canvas");
@@ -208,7 +310,10 @@ export default function App() {
           const g = data[i + 1];
           const b = data[i + 2];
 
-          if (r > 235 && g > 235 && b > 235) whiteCount++;
+          if (r > 235 && g > 235 && b > 235) {
+            whiteCount++;
+          }
+
           total++;
         }
       }
@@ -220,6 +325,7 @@ export default function App() {
   function draw() {
     const canvas = previewCanvasRef.current;
     const img = drawableImageRef.current || sourceImageRef.current;
+
     if (!canvas || !img) return;
 
     const ctx = canvas.getContext("2d");
@@ -229,7 +335,11 @@ export default function App() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
 
-    const baseScale = Math.min(OUTPUT_WIDTH / img.width, OUTPUT_HEIGHT / img.height);
+    const baseScale = Math.min(
+      OUTPUT_WIDTH / img.width,
+      OUTPUT_HEIGHT / img.height
+    );
+
     const finalScale = baseScale * scale;
     const drawW = img.width * finalScale;
     const drawH = img.height * finalScale;
@@ -242,6 +352,7 @@ export default function App() {
 
   function scheduleDraw() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
     rafRef.current = requestAnimationFrame(() => {
       draw();
       rafRef.current = null;
@@ -249,7 +360,12 @@ export default function App() {
   }
 
   function resetSliders() {
-    manualRef.current = { scale: 1, moveX: 0, moveY: 0 };
+    manualRef.current = {
+      scale: 1,
+      moveX: 0,
+      moveY: 0,
+    };
+
     setScaleValue(1);
     setMoveXValue(0);
     setMoveYValue(0);
@@ -387,6 +503,10 @@ export default function App() {
               />
             </div>
 
+            <p className="text-xs text-gray-500 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg p-3">
+              {t.personalDataNote}
+            </p>
+
             <div className="pt-4 border-t">
               {!isModelLoaded ? (
                 <div className="text-blue-600 animate-pulse font-medium text-center">
@@ -423,7 +543,9 @@ export default function App() {
               <div>
                 <div className="flex justify-between text-xs font-bold text-gray-500">
                   <span>{t.zoom}</span>
-                  <span className="text-blue-600">{Math.round(scaleValue * 100)}%</span>
+                  <span className="text-blue-600">
+                    {Math.round(scaleValue * 100)}%
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -534,7 +656,9 @@ export default function App() {
             onClick={handleDownload}
             disabled={!hasImage}
             className={`mt-8 w-full max-w-[360px] py-4 rounded-xl text-white font-bold text-lg shadow-lg transition mx-auto order-6 lg:order-none ${
-              hasImage ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
+              hasImage
+                ? "bg-green-600 hover:bg-green-700"
+                : "bg-gray-400 cursor-not-allowed"
             }`}
           >
             {t.download}
@@ -543,6 +667,21 @@ export default function App() {
           <div className="mt-4 max-w-[360px] p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 mx-auto order-7 lg:order-none">
             <p className="font-bold mb-1">{t.disclaimerTitle}</p>
             {t.disclaimer}
+
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={handleLike}
+                disabled={hasLiked || likeLoading}
+                className="inline-flex items-center justify-center rounded-full bg-pink-500 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-pink-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                ❤️ {hasLiked ? t.likedButton : t.likeButton}
+              </button>
+
+              <p className="mt-2 text-xs text-gray-500">
+                👍 {likes} {t.likes}
+              </p>
+            </div>
           </div>
 
           <div className="mt-6 text-center order-8 lg:order-none">

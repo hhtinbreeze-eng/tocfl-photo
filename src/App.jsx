@@ -25,6 +25,8 @@ const i18n = {
     moveX: "左右移動",
     moveY: "上下移動",
     download: "下載成品照片",
+    downloadCountText: "已有",
+    downloadCountSuffix: "人下載成品照片",
     bgStatus: "背景狀態",
     bgWhite: "偵測為白底，保留原圖髮絲細節",
     bgNotWhite: "偵測非白底，已自動去背並改為純白背景",
@@ -57,6 +59,8 @@ const i18n = {
     moveX: "Move X",
     moveY: "Move Y",
     download: "Download Photo",
+    downloadCountText: "",
+    downloadCountSuffix: "people have downloaded the finished photo",
     bgStatus: "Background",
     bgWhite: "Near-white detected; original hair details preserved",
     bgNotWhite: "Non-white detected; background removed",
@@ -89,6 +93,8 @@ const i18n = {
     moveX: "Di chuyển ngang",
     moveY: "Di chuyển dọc",
     download: "Tải ảnh xuống",
+    downloadCountText: "Đã có",
+    downloadCountSuffix: "người tải ảnh thành phẩm",
     bgStatus: "Trạng thái nền",
     bgWhite: "Nền gần trắng; giữ chi tiết tóc gốc",
     bgNotWhite: "Nền không trắng; đã tự động xóa nền",
@@ -168,6 +174,7 @@ export default function App() {
   const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [downloadCount, setDownloadCount] = useState(0);
 
   const previewCanvasRef = useRef(null);
   const sourceImageRef = useRef(null);
@@ -185,20 +192,27 @@ export default function App() {
     const liked = localStorage.getItem("tocfl_photo_liked") === "yes";
     setHasLiked(liked);
 
-    async function loadLikes() {
+    async function loadCounts() {
       try {
-        const response = await fetch(LIKE_API_URL);
-        const data = await response.json();
+        const likeResponse = await fetch(`${LIKE_API_URL}?action=like`);
+        const likeData = await likeResponse.json();
 
-        if (data.ok) {
-          setLikes(Number(data.count) || 0);
+        if (likeData.ok) {
+          setLikes(Number(likeData.count) || 0);
+        }
+
+        const downloadResponse = await fetch(`${LIKE_API_URL}?action=download`);
+        const downloadData = await downloadResponse.json();
+
+        if (downloadData.ok) {
+          setDownloadCount(Number(downloadData.count) || 0);
         }
       } catch (err) {
-        console.error("Failed to load likes:", err);
+        console.error("Failed to load counts:", err);
       }
     }
 
-    loadLikes();
+    loadCounts();
   }, []);
 
   useEffect(() => {
@@ -268,7 +282,7 @@ export default function App() {
     setLikeLoading(true);
 
     try {
-      const response = await fetch(LIKE_API_URL, {
+      const response = await fetch(`${LIKE_API_URL}?action=like`, {
         method: "POST",
       });
 
@@ -284,6 +298,22 @@ export default function App() {
       alert("按讚失敗，請稍後再試。");
     } finally {
       setLikeLoading(false);
+    }
+  }
+
+  async function recordDownload() {
+    try {
+      const response = await fetch(`${LIKE_API_URL}?action=download`, {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        setDownloadCount(Number(data.count) || downloadCount + 1);
+      }
+    } catch (err) {
+      console.error("Failed to record download:", err);
     }
   }
 
@@ -452,6 +482,8 @@ export default function App() {
     link.download = `${cleanPassport}_${cleanName}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
+
+    recordDownload();
   }
 
   return (
@@ -619,7 +651,10 @@ export default function App() {
 
           <ul className="space-y-2">
             {t.hints.map((hint, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+              <li
+                key={index}
+                className="flex items-start gap-2 text-sm text-gray-600"
+              >
                 <span className="text-green-500 font-bold">✓</span>
                 {hint}
               </li>
@@ -663,6 +698,10 @@ export default function App() {
           >
             {t.download}
           </button>
+
+          <p className="mt-2 text-xs text-gray-500 text-center order-6 lg:order-none">
+            {t.downloadCountText} {downloadCount} {t.downloadCountSuffix}
+          </p>
 
           <div className="mt-4 max-w-[360px] p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 mx-auto order-7 lg:order-none">
             <p className="font-bold mb-1">{t.disclaimerTitle}</p>

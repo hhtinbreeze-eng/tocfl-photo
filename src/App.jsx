@@ -19,6 +19,8 @@ const i18n = {
     personalDataNote:
       "護照及姓名僅供照片檔案命名使用，不另作其他用途，以確保您的個資安全。",
     upload: "上傳照片",
+    uploadWarning:
+      "注意：本網站不是華測會官方網站，也未與華測會系統串接。照片處理完成後，請先下載照片，再自行前往華測會官方網站上傳並送交審核。",
     processing: "處理中...",
     initModel: "正在初始化模型...",
     zoom: "縮放 Zoom",
@@ -53,6 +55,8 @@ const i18n = {
     personalDataNote:
       "Passport number and name are only used for photo file naming and will not be used for any other purpose.",
     upload: "Upload Photo",
+    uploadWarning:
+      "Important: This is not an official TOCFL website and is not connected to the official TOCFL system. After processing, download your photo and upload it separately to the official website for review.",
     processing: "Processing...",
     initModel: "Initializing model...",
     zoom: "Zoom",
@@ -87,6 +91,8 @@ const i18n = {
     personalDataNote:
       "Số hộ chiếu và tên chỉ được dùng để đặt tên file ảnh, không sử dụng cho mục đích khác.",
     upload: "Tải ảnh lên",
+    uploadWarning:
+      "Lưu ý: Đây không phải là trang web chính thức của TOCFL và không được kết nối với hệ thống TOCFL chính thức. Sau khi xử lý, vui lòng tải ảnh xuống, sau đó tự tải ảnh lên trang web chính thức để xét duyệt.",
     processing: "Đang xử lý...",
     initModel: "Đang khởi tạo...",
     zoom: "Phóng to / thu nhỏ",
@@ -556,6 +562,13 @@ export default function App() {
                   />
                 </label>
               )}
+
+              <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm leading-relaxed text-amber-900">
+                <span className="mr-1" aria-hidden="true">
+                  ⚠️
+                </span>
+                {t.uploadWarning}
+              </div>
             </div>
 
             {error && (

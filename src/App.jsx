@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const OUTPUT_WIDTH = 600;
 const OUTPUT_HEIGHT = 800;
@@ -13,6 +13,23 @@ const LIKE_API_URL =
 
 const i18n = {
   zh: {
+    preparing: "正在準備 PNG…",
+    ready: "照片已在本機準備完成。請選擇儲存方式。",
+    saveFile: "下載 PNG 檔案",
+    sharePhoto: "分享／儲存到相簿",
+    closeSave: "關閉儲存預覽",
+    saveHelp: "iPhone／iPad：可在分享選單選「儲存影像」或「儲存到檔案」（依裝置而異）。Android：可下載檔案，或選擇分享目的地。若下載無反應，請長按下方成品圖儲存；內建瀏覽器請改用 Safari／Chrome。",
+    saveLimit: "網站只能確認已發出下載要求或分享介面已回報完成，無法證實檔案已存入裝置。長按儲存不會計入下載統計；分享至其他 App 會由您選擇的目的地接收照片。",
+    downloadStarted: "已發出下載要求，請查看瀏覽器下載項目。若未出現檔案，請使用分享或長按儲存。",
+    shareDone: "分享介面已回報完成。請自行確認檔案是否已儲存。",
+    shareCancelled: "已取消分享，或沒有可用目的地；未增加下載計數。",
+    shareFailed: "無法開啟分享或傳送照片；未增加下載計數。請重新點擊，或使用下載／長按儲存。",
+    exportFailed: "無法產生成品照片。請重新選取 JPG／PNG 照片後再試。",
+    downloadFailed: "無法啟動下載；未增加下載計數。請使用分享或長按儲存。",
+    sharing: "請完成或關閉系統分享選單…",
+    imageFailed: "無法讀取照片，請選擇有效的 JPG／PNG 照片。",
+    backgroundFailed: "去背失敗，目前保留原圖；請改用白底照片。",
+    downloadCountSuffix: "次下載／分享請求（不代表已儲存人數）",
     title: "華測會大頭照處理系統",
     passport: "護照號碼",
     name: "姓名",
@@ -28,7 +45,6 @@ const i18n = {
     moveY: "上下移動",
     download: "下載成品照片",
     downloadCountText: "已有",
-    downloadCountSuffix: "人下載成品照片",
     bgStatus: "背景狀態",
     bgWhite: "偵測為白底，保留原圖髮絲細節",
     bgNotWhite: "偵測非白底，已自動去背並改為純白背景",
@@ -49,6 +65,23 @@ const i18n = {
     ],
   },
   en: {
+    preparing: "Preparing PNG…",
+    ready: "Photo prepared locally. Choose how to save it.",
+    saveFile: "Download PNG file",
+    sharePhoto: "Share / Save to Photos",
+    closeSave: "Close save preview",
+    saveHelp: "iPhone / iPad: choose Save Image or Save to Files in the share sheet, if available. Android: download the file or choose a share destination. If downloading does nothing, long-press the finished image below to save it. Open embedded browsers in Safari / Chrome.",
+    saveLimit: "This site can only observe a download request or share completion report, not whether the file was saved. Long-press saves are not counted. Sharing sends the photo to the destination you choose.",
+    downloadStarted: "Download requested. Check browser downloads. If no file appears, use sharing or long-press to save.",
+    shareDone: "The share interface reported completion. Please check that your file was saved.",
+    shareCancelled: "Sharing was cancelled or no destination was available. No download counted.",
+    shareFailed: "Could not share the photo. No download counted. Tap again or use download / long-press save.",
+    exportFailed: "Could not prepare the photo. Select a valid JPG / PNG and try again.",
+    downloadFailed: "Could not start downloading. No download counted. Use sharing or long-press save.",
+    sharing: "Complete or close the system share sheet…",
+    imageFailed: "Could not read this photo. Select a valid JPG / PNG.",
+    backgroundFailed: "Background removal failed; original image retained. Please use a white-background photo.",
+    downloadCountSuffix: "download / share requests (not confirmed saves)",
     title: "TOCFL ID Photo Processor",
     passport: "Passport No.",
     name: "Name",
@@ -64,7 +97,6 @@ const i18n = {
     moveY: "Move Y",
     download: "Download Photo",
     downloadCountText: "",
-    downloadCountSuffix: "people have downloaded the finished photo",
     bgStatus: "Background",
     bgWhite: "Near-white detected; original hair details preserved",
     bgNotWhite: "Non-white detected; background removed",
@@ -85,6 +117,23 @@ const i18n = {
     ],
   },
   vi: {
+    preparing: "Đang chuẩn bị PNG…",
+    ready: "Ảnh đã được chuẩn bị trên thiết bị. Hãy chọn cách lưu.",
+    saveFile: "Tải tệp PNG",
+    sharePhoto: "Chia sẻ / Lưu vào Ảnh",
+    closeSave: "Đóng bản xem trước",
+    saveHelp: "iPhone / iPad: chọn Lưu hình ảnh hoặc Lưu vào Tệp trong bảng chia sẻ nếu có. Android: tải tệp hoặc chọn nơi chia sẻ. Nếu tải không phản hồi, nhấn giữ ảnh bên dưới để lưu. Với trình duyệt trong ứng dụng, hãy mở bằng Safari / Chrome.",
+    saveLimit: "Trang chỉ biết yêu cầu tải đã được gửi hoặc giao diện chia sẻ báo hoàn tất, không thể xác nhận tệp đã lưu. Nhấn giữ để lưu không được tính. Chia sẻ sẽ gửi ảnh đến nơi bạn chọn.",
+    downloadStarted: "Đã yêu cầu tải. Hãy kiểm tra mục tải xuống. Nếu chưa có tệp, dùng chia sẻ hoặc nhấn giữ ảnh.",
+    shareDone: "Giao diện chia sẻ đã báo hoàn tất. Hãy kiểm tra tệp đã được lưu.",
+    shareCancelled: "Đã hủy chia sẻ hoặc không có nơi nhận. Không tăng bộ đếm.",
+    shareFailed: "Không thể chia sẻ ảnh. Không tăng bộ đếm. Nhấn lại hoặc tải tệp / nhấn giữ để lưu.",
+    exportFailed: "Không thể tạo ảnh. Hãy chọn ảnh JPG / PNG hợp lệ và thử lại.",
+    downloadFailed: "Không thể bắt đầu tải. Không tăng bộ đếm. Dùng chia sẻ hoặc nhấn giữ để lưu.",
+    sharing: "Hãy hoàn tất hoặc đóng bảng chia sẻ…",
+    imageFailed: "Không đọc được ảnh. Hãy chọn ảnh JPG / PNG hợp lệ.",
+    backgroundFailed: "Xóa nền thất bại; đang giữ ảnh gốc. Hãy dùng ảnh nền trắng.",
+    downloadCountSuffix: "yêu cầu tải / chia sẻ (không xác nhận đã lưu)",
     title: "Hệ thống xử lý ảnh TOCFL",
     passport: "Số hộ chiếu",
     name: "Họ và tên",
@@ -100,7 +149,6 @@ const i18n = {
     moveY: "Di chuyển dọc",
     download: "Tải ảnh xuống",
     downloadCountText: "Đã có",
-    downloadCountSuffix: "người tải ảnh thành phẩm",
     bgStatus: "Trạng thái nền",
     bgWhite: "Nền gần trắng; giữ chi tiết tóc gốc",
     bgNotWhite: "Nền không trắng; đã tự động xóa nền",
@@ -161,6 +209,30 @@ function GuideLines() {
   );
 }
 
+function drawPreview(canvas, img, { scale, moveX, moveY }) {
+    if (!canvas || !img) return;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+
+    const baseScale = Math.min(
+      OUTPUT_WIDTH / img.width,
+      OUTPUT_HEIGHT / img.height
+    );
+
+    const finalScale = baseScale * scale;
+    const drawW = img.width * finalScale;
+    const drawH = img.height * finalScale;
+
+    const x = (OUTPUT_WIDTH - drawW) / 2 + moveX;
+    const y = (OUTPUT_HEIGHT - drawH) / 2 + moveY;
+
+    ctx.drawImage(img, x, y, drawW, drawH);
+}
+
 export default function App() {
   const [lang, setLang] = useState("zh");
   const t = i18n[lang];
@@ -181,6 +253,30 @@ export default function App() {
   const [hasLiked, setHasLiked] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [downloadCount, setDownloadCount] = useState(0);
+  const [saveStatus, setSaveStatus] = useState("");
+  const [saveAsset, setSaveAsset] = useState(null);
+  const [preparing, setPreparing] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const exportBusyRef = useRef(false);
+  const sharingRef = useRef(false);
+  const saveAssetRef = useRef(null);
+  const exportVersionRef = useRef(0);
+
+  // Never persist photo data or identifying filenames. Revoke only when the
+  // preview is replaced/closed, not immediately after clicking a download link.
+  useEffect(() => () => {
+    exportVersionRef.current += 1;
+    if (saveAssetRef.current) URL.revokeObjectURL(saveAssetRef.current.url);
+  }, []);
+
+  function clearSave() {
+    exportVersionRef.current += 1;
+    if (saveAssetRef.current) URL.revokeObjectURL(saveAssetRef.current.url);
+    saveAssetRef.current = null;
+    setSaveAsset(null);
+    setSaveStatus("");
+  }
+
 
   const previewCanvasRef = useRef(null);
   const sourceImageRef = useRef(null);
@@ -195,8 +291,9 @@ export default function App() {
   });
 
   useEffect(() => {
-    const liked = localStorage.getItem("tocfl_photo_liked") === "yes";
-    setHasLiked(liked);
+    try {
+      setHasLiked(localStorage.getItem("tocfl_photo_liked") === "yes");
+    } catch { /* Storage may be disabled; this must not stop the app. */ }
 
     async function loadCounts() {
       try {
@@ -211,7 +308,7 @@ export default function App() {
         const downloadData = await downloadResponse.json();
 
         if (downloadData.ok) {
-          setDownloadCount(Number(downloadData.count) || 0);
+          setDownloadCount(previous => Math.max(previous, Number(downloadData.count) || 0));
         }
       } catch (err) {
         console.error("Failed to load counts:", err);
@@ -222,10 +319,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    let ownedModel;
     const script = document.createElement("script");
     script.src = `${MEDIAPIPE_PATH}selfie_segmentation.js`;
 
     script.onload = () => {
+      if (!active) return;
       try {
         if (!window.SelfieSegmentation) {
           throw new Error("window.SelfieSegmentation is not available");
@@ -234,12 +334,14 @@ export default function App() {
         const model = new window.SelfieSegmentation({
           locateFile: (file) => `${MEDIAPIPE_PATH}${file}`,
         });
+        ownedModel = model;
 
         model.setOptions({
           modelSelection: 1,
         });
 
         model.onResults((results) => {
+          if (!active) return;
           const img = sourceImageRef.current;
           if (!img) return;
 
@@ -257,7 +359,13 @@ export default function App() {
           drawableImageRef.current = offCanvas;
           setHasImage(true);
           setIsProcessing(false);
-          scheduleDraw();
+          // This callback uses only refs; keep model initialization independent
+          // of render-time functions and StrictMode effect re-runs.
+          if (rafRef.current) cancelAnimationFrame(rafRef.current);
+          rafRef.current = requestAnimationFrame(() => {
+            drawPreview(previewCanvasRef.current, drawableImageRef.current, manualRef.current);
+            rafRef.current = null;
+          });
         });
 
         segmentationRef.current = model;
@@ -269,6 +377,7 @@ export default function App() {
     };
 
     script.onerror = () => {
+      if (!active) return;
       setError(
         "MediaPipe 載入失敗，請確認 public/mediapipe/selfie_segmentation.js 是否存在。"
       );
@@ -277,6 +386,9 @@ export default function App() {
     document.body.appendChild(script);
 
     return () => {
+      active = false;
+      if (segmentationRef.current === ownedModel) segmentationRef.current = null;
+      if (ownedModel) Promise.resolve(ownedModel.close()).catch(() => {});
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (script.parentNode) script.parentNode.removeChild(script);
     };
@@ -297,7 +409,7 @@ export default function App() {
       if (data.ok) {
         setLikes(Number(data.count) || likes + 1);
         setHasLiked(true);
-        localStorage.setItem("tocfl_photo_liked", "yes");
+        try { localStorage.setItem("tocfl_photo_liked", "yes"); } catch { /* Optional preference only. */ }
       }
     } catch (err) {
       console.error("Failed to like:", err);
@@ -311,12 +423,13 @@ export default function App() {
     try {
       const response = await fetch(`${LIKE_API_URL}?action=download`, {
         method: "POST",
+        keepalive: true,
       });
 
       const data = await response.json();
 
       if (data.ok) {
-        setDownloadCount(Number(data.count) || downloadCount + 1);
+        setDownloadCount((previous) => Math.max(previous, Number(data.count) || 0));
       }
     } catch (err) {
       console.error("Failed to record download:", err);
@@ -359,31 +472,7 @@ export default function App() {
   }
 
   function draw() {
-    const canvas = previewCanvasRef.current;
-    const img = drawableImageRef.current || sourceImageRef.current;
-
-    if (!canvas || !img) return;
-
-    const ctx = canvas.getContext("2d");
-    const { scale, moveX, moveY } = manualRef.current;
-
-    ctx.clearRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
-
-    const baseScale = Math.min(
-      OUTPUT_WIDTH / img.width,
-      OUTPUT_HEIGHT / img.height
-    );
-
-    const finalScale = baseScale * scale;
-    const drawW = img.width * finalScale;
-    const drawH = img.height * finalScale;
-
-    const x = (OUTPUT_WIDTH - drawW) / 2 + moveX;
-    const y = (OUTPUT_HEIGHT - drawH) / 2 + moveY;
-
-    ctx.drawImage(img, x, y, drawW, drawH);
+    drawPreview(previewCanvasRef.current, drawableImageRef.current || sourceImageRef.current, manualRef.current);
   }
 
   function scheduleDraw() {
@@ -415,6 +504,7 @@ export default function App() {
     if (key === "moveX") setMoveXValue(numberValue);
     if (key === "moveY") setMoveYValue(numberValue);
 
+    clearSave();
     scheduleDraw();
   }
 
@@ -422,74 +512,155 @@ export default function App() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    clearSave();
     setError("");
     setIsProcessing(true);
     setHasImage(false);
     setBgStatusText("");
     resetSliders();
 
+    const failRead = () => {
+      setError(t.imageFailed);
+      setIsProcessing(false);
+    };
     const reader = new FileReader();
+    reader.onerror = failRead;
+    reader.onabort = failRead;
 
     reader.onload = (event) => {
       const img = new Image();
 
+      img.onerror = failRead;
       img.onload = async () => {
-        sourceImageRef.current = img;
+        try {
+        // Bound working memory for high-resolution phone cameras; all resizing
+        // and segmentation remain on-device.
+        const ratio = Math.min(1, 2048 / Math.max(img.width, img.height));
+        const working = document.createElement("canvas");
+        working.width = Math.max(1, Math.round(img.width * ratio));
+        working.height = Math.max(1, Math.round(img.height * ratio));
+        working.getContext("2d").drawImage(img, 0, 0, working.width, working.height);
+        sourceImageRef.current = working;
 
-        const isWhite = isNearWhiteBackground(img);
+        const isWhite = isNearWhiteBackground(working);
 
         if (isWhite) {
-          drawableImageRef.current = img;
-          setBgStatusText(t.bgWhite);
+          drawableImageRef.current = working;
+          setBgStatusText("bgWhite");
           setHasImage(true);
           setIsProcessing(false);
           scheduleDraw();
           return;
         }
 
-        setBgStatusText(t.bgNotWhite);
+        setBgStatusText("bgNotWhite");
 
         try {
           if (!segmentationRef.current) {
-            drawableImageRef.current = img;
+            setError(t.backgroundFailed);
+            setBgStatusText("backgroundFailed");
+            drawableImageRef.current = working;
             setHasImage(true);
             setIsProcessing(false);
             scheduleDraw();
             return;
           }
 
-          await segmentationRef.current.send({ image: img });
+          await segmentationRef.current.send({ image: working });
         } catch (err) {
           console.error(err);
-          setError("去背失敗，請改用白牆或白底照片。");
-          drawableImageRef.current = img;
+          setError(t.backgroundFailed);
+          setBgStatusText("backgroundFailed");
+          drawableImageRef.current = working;
           setHasImage(true);
           setIsProcessing(false);
           scheduleDraw();
         }
+        } catch { failRead(); }
       };
 
       img.src = event.target.result;
     };
 
-    reader.readAsDataURL(file);
+    try { reader.readAsDataURL(file); } catch { failRead(); }
+    e.target.value = "";
   }
 
-  function handleDownload() {
-    const canvas = previewCanvasRef.current;
-    if (!canvas || !hasImage) return;
+  async function handleDownload() {
+    if (exportBusyRef.current || sharingRef.current) return;
+    clearSave();
+    const version = exportVersionRef.current;
+    exportBusyRef.current = true;
+    setPreparing(true);
+    setSaveStatus("preparing");
+    try {
+      const canvas = previewCanvasRef.current;
+      if (!canvas || !hasImage || isProcessing) throw new Error("No photo");
+      draw(); // Include the latest slider position even before the next frame.
+      const blob = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("PNG timeout")), 15000);
+        try {
+          canvas.toBlob((result) => {
+            clearTimeout(timeout);
+            if (result?.size) resolve(result);
+            else reject(new Error("Empty PNG"));
+          }, "image/png");
+        } catch (err) { clearTimeout(timeout); reject(err); }
+      });
+      if (version !== exportVersionRef.current) return;
+      const clean = (value, fallback) => value
+        // eslint-disable-next-line no-control-regex -- strip unsafe filename controls
+        .replace(/[<>:"/\\|?*\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g, "")
+        .trim().replace(/[. ]+$/g, "").slice(0, 80) || fallback;
+      const filename = `${clean(passport, "Passport")}_${clean(userName, "Name")}.png`;
+      const file = new File([blob], filename, { type: "image/png" });
+      let canShare = false;
+      try { canShare = !!navigator.share && !!navigator.canShare?.({ files: [file] }); } catch { /* Download remains available. */ }
+      const asset = { file, filename, url: URL.createObjectURL(blob), canShare };
+      saveAssetRef.current = asset;
+      setSaveAsset(asset);
+      setSaveStatus("ready");
+    } catch {
+      if (version === exportVersionRef.current) setSaveStatus("exportFailed");
+    } finally {
+      exportBusyRef.current = false;
+      setPreparing(false);
+    }
+  }
 
-    draw();
-
-    const cleanPassport = (passport || "Passport").replace(/[<>:"/\\|?*]/g, "");
-    const cleanName = (userName || "Name").replace(/[<>:"/\\|?*]/g, "");
-
+  function downloadPrepared() {
+    const asset = saveAssetRef.current;
+    if (!asset || sharingRef.current) return;
     const link = document.createElement("a");
-    link.download = `${cleanPassport}_${cleanName}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+    try {
+      link.download = asset.filename;
+      link.href = asset.url;
+      document.body.appendChild(link);
+      link.click(); // Synchronous inside a fresh user click; no awaited work.
+      setSaveStatus("downloadStarted");
+      void recordDownload(); // Request issued, not proof of a saved file.
+    } catch { setSaveStatus("downloadFailed"); }
+    finally { link.remove(); }
+  }
 
-    recordDownload();
+  async function sharePrepared() {
+    const asset = saveAssetRef.current;
+    if (!asset?.canShare || sharingRef.current) return;
+    sharingRef.current = true;
+    setSharing(true);
+    setSaveStatus("sharing");
+    try {
+      // The File is already prepared. Call share BEFORE the first await so
+      // canvas encoding/network traffic cannot consume transient activation.
+      await navigator.share({ files: [asset.file] });
+      setSaveStatus("shareDone");
+      void recordDownload();
+    } catch (err) {
+      setSaveStatus(err?.name === "AbortError" ? "shareCancelled" : "shareFailed");
+    } finally {
+      sharingRef.current = false;
+      setSharing(false);
+    }
   }
 
   return (
@@ -522,7 +693,9 @@ export default function App() {
               <input
                 type="text"
                 value={passport}
-                onChange={(e) => setPassport(e.target.value)}
+                onChange={(e) => { setPassport(e.target.value); clearSave(); }}
+                disabled={sharing || preparing}
+                autoComplete="off"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Ex: A123456789"
               />
@@ -535,7 +708,9 @@ export default function App() {
               <input
                 type="text"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => { setUserName(e.target.value); clearSave(); }}
+                disabled={sharing || preparing}
+                autoComplete="off"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 placeholder="Ex: WANG XIAO MING"
               />
@@ -558,7 +733,7 @@ export default function App() {
                     accept="image/*"
                     className="hidden"
                     onChange={handleFileUpload}
-                    disabled={isProcessing}
+                    disabled={isProcessing || sharing || preparing}
                   />
                 </label>
               )}
@@ -582,7 +757,7 @@ export default function App() {
             <div className="bg-white p-6 rounded-2xl shadow-md space-y-6 h-fit mt-8 order-5 lg:order-none">
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm">
                 <span className="font-bold text-blue-800">{t.bgStatus}: </span>
-                {bgStatusText}
+                {t[bgStatusText] || bgStatusText}
               </div>
 
               <div>
@@ -594,6 +769,7 @@ export default function App() {
                 </div>
                 <input
                   type="range"
+                  disabled={sharing || preparing}
                   min="0.3"
                   max="5"
                   step="0.01"
@@ -610,6 +786,7 @@ export default function App() {
                 </div>
                 <input
                   type="range"
+                  disabled={sharing || preparing}
                   min="-400"
                   max="400"
                   step="1"
@@ -626,6 +803,7 @@ export default function App() {
                 </div>
                 <input
                   type="range"
+                  disabled={sharing || preparing}
                   min="-500"
                   max="500"
                   step="1"
@@ -702,15 +880,30 @@ export default function App() {
 
           <button
             onClick={handleDownload}
-            disabled={!hasImage}
+            disabled={!hasImage || isProcessing || preparing || sharing}
             className={`mt-8 w-full max-w-[360px] py-4 rounded-xl text-white font-bold text-lg shadow-lg transition mx-auto order-6 lg:order-none ${
               hasImage
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            {t.download}
+            {preparing ? t.preparing : t.download}
           </button>
+
+          <div className="mt-3 w-full max-w-[360px] mx-auto order-6 lg:order-none space-y-3">
+            {saveStatus && <p role="status" aria-live="polite" className="text-sm font-medium text-blue-900 border rounded-lg p-3">{t[saveStatus]}</p>}
+            {saveAsset && (
+              <section aria-label={t.ready} className="space-y-3 p-3 border rounded-lg bg-white">
+                <button type="button" onClick={downloadPrepared} disabled={sharing} className="w-full p-3 rounded-lg bg-green-700 text-white disabled:opacity-50">{t.saveFile}</button>
+                {saveAsset.canShare && <button type="button" onClick={sharePrepared} disabled={sharing} className="w-full p-3 rounded-lg bg-blue-700 text-white disabled:opacity-50">{t.sharePhoto}</button>}
+                <p className="text-sm">{t.saveHelp}</p>
+                <img src={saveAsset.url} alt={t.download} className="w-full h-auto" />
+                <p className="text-xs break-all">{saveAsset.filename}</p>
+                <button type="button" onClick={clearSave} disabled={sharing} className="w-full border rounded-lg p-2">{t.closeSave}</button>
+              </section>
+            )}
+            <p className="text-xs text-gray-500">{t.saveLimit}</p>
+          </div>
 
           <p className="mt-2 text-xs text-gray-500 text-center order-6 lg:order-none">
             {t.downloadCountText} {downloadCount} {t.downloadCountSuffix}

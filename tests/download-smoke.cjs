@@ -8,10 +8,11 @@ const results = [];
 (async () => {
   const browser = await chromium.launch({headless:true});
   try {
-    for (const scenario of ['desktop','mobile','share-success','share-cancel','share-denied','blob-null','blob-throw','blob-timeout','click-throw','bad-image','storage-denied','unsupported-share','nonwhite']) {
+    for (const scenario of ['desktop','mobile','share-success','share-cancel','share-denied','blob-null','blob-throw','blob-timeout','click-throw','bad-image','storage-denied','unsupported-share','already-liked','nonwhite']) {
       const context = await browser.newContext({viewport: scenario==='desktop' ? {width:1440,height:1000} : {width:390,height:844}, acceptDownloads:true});
       const page = await context.newPage();
       let posts=0;
+      let likePosts=0;
       const requests=[];
       const errors=[];
       page.on('pageerror',e=>errors.push(e.message));
@@ -19,6 +20,7 @@ const results = [];
         const r=route.request(); requests.push({url:r.url(),method:r.method(),body:r.postData()});
         if(r.url().startsWith('https://script.google.com/')) {
           if(r.method()==='POST' && r.url().includes('action=download')) posts++;
+          if(r.method()==='POST' && r.url().includes('action=like')) likePosts++;
           await route.fulfill({json:{ok:true,count:10+posts}});
         } else if(r.url().startsWith(new URL(base).origin)) {
           const relative = decodeURIComponent(new URL(r.url()).pathname).replace(/^\/tocfl-photo\//,'') || 'index.html';
@@ -31,6 +33,7 @@ const results = [];
         else await route.abort(); // No test photos or identities may leave localhost.
       });
       await page.addInitScript(scenario=>{
+        if(scenario==='already-liked') localStorage.setItem('tocfl_photo_liked','yes');
         if(scenario.startsWith('share-')) {
           Object.defineProperty(navigator,'canShare',{value:()=>true});
           Object.defineProperty(navigator,'share',{value: data=>{
@@ -49,6 +52,8 @@ const results = [];
         if(scenario==='click-throw') HTMLAnchorElement.prototype.click=function(){throw new Error('Download blocked')};
       },scenario);
       await page.goto(base);
+      assert.equal(await page.getByText('不代表已儲存人數',{exact:false}).count(),0);
+      assert.equal(await page.getByText('網站只能確認已發出下載要求',{exact:false}).count(),0);
       await page.waitForSelector('input[type=file]',{state:'attached'});
       const bytes=await page.evaluate(nonwhite=>{
         const c=document.createElement('canvas'); c.width=600; c.height=800;
@@ -76,12 +81,14 @@ const results = [];
         } else {
           const download=page.getByRole('button',{name:'下載 PNG 檔案',exact:true});
           await download.waitFor(); assert.equal(posts,0,'Preparation must not count');
+          assert.equal(await page.getByRole('dialog').count(),0,'Preparing alone must not show the reminder');
           if(scenario.startsWith('share-')) {
             await page.getByRole('button',{name:'分享／儲存到相簿',exact:true}).click();
             await status.filter({hasText: scenario==='share-success'?'分享介面已回報完成':scenario==='share-cancel'?'已取消分享':'無法開啟分享'}).waitFor();
             assert.equal(await page.evaluate(()=>window.shareActive),true,'Share must retain user activation');
             if(scenario==='share-success') await page.waitForFunction(()=>document.body.textContent.includes('11 次下載'));
             assert.equal(posts,scenario==='share-success'?1:0);
+            assert.equal(await page.getByRole('dialog').count(),scenario==='share-success'?1:0,'Only successful sharing shows the reminder');
           } else if(scenario==='click-throw') {
             await download.click();await status.filter({hasText:'無法啟動下載'}).waitFor();assert.equal(posts,0);
           } else {
@@ -92,6 +99,23 @@ const results = [];
             await status.filter({hasText:'已發出下載要求'}).waitFor();
             await page.waitForFunction(()=>document.body.textContent.includes('11 次下載'));
             assert.equal(posts,1);
+            const dialog=page.getByRole('dialog');
+            await dialog.waitFor();
+            await dialog.getByText('重要聲明',{exact:true}).waitFor();
+            if(scenario==='mobile') {
+              await page.screenshot({path:'tests/mobile-reminder.png',fullPage:true});
+              await dialog.getByRole('button',{name:/覺得這項服務有幫助嗎/}).click();
+              await dialog.getByRole('heading',{name:'謝謝您的支持！',exact:true}).waitFor();
+              assert.equal(likePosts,1);
+              assert.equal(await dialog.getByRole('button',{name:/謝謝您的支持/}).isDisabled(),true);
+            }
+            if(scenario==='already-liked') {
+              assert.equal(await dialog.getByRole('button',{name:/謝謝您的支持/}).isDisabled(),true);
+              assert.equal(likePosts,0);
+            }
+            await page.keyboard.press('Escape');
+            await dialog.waitFor({state:'hidden'});
+            assert.equal(await download.evaluate(b=>b===document.activeElement),true);
             // Editing invalidates the exported snapshot so a stale crop cannot be saved.
             await page.locator('input[type=range]').first().fill('1.5');
             assert.equal(await download.count(),0);

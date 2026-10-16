@@ -19,7 +19,11 @@ const i18n = {
     sharePhoto: "分享／儲存到相簿",
     closeSave: "關閉儲存預覽",
     saveHelp: "iPhone／iPad：可在分享選單選「儲存影像」或「儲存到檔案」（依裝置而異）。Android：可下載檔案，或選擇分享目的地。若下載無反應，請長按下方成品圖儲存；內建瀏覽器請改用 Safari／Chrome。",
-    saveLimit: "網站只能確認已發出下載要求或分享介面已回報完成，無法證實檔案已存入裝置。長按儲存不會計入下載統計；分享至其他 App 會由您選擇的目的地接收照片。",
+    thanksTitle: "謝謝使用，希望有幫上忙！",
+    thanksMessage: "如果這項服務讓準備照片更輕鬆，歡迎送上一顆愛心，給我們一點鼓勵 ❤️",
+    thanksReminder: "記得將照片自行上傳至華測會官方網站送審。",
+    closeReminder: "繼續使用",
+    dismissReminder: "關閉提醒",
     downloadStarted: "已發出下載要求，請查看瀏覽器下載項目。若未出現檔案，請使用分享或長按儲存。",
     shareDone: "分享介面已回報完成。請自行確認檔案是否已儲存。",
     shareCancelled: "已取消分享，或沒有可用目的地；未增加下載計數。",
@@ -29,7 +33,7 @@ const i18n = {
     sharing: "請完成或關閉系統分享選單…",
     imageFailed: "無法讀取照片，請選擇有效的 JPG／PNG 照片。",
     backgroundFailed: "去背失敗，目前保留原圖；請改用白底照片。",
-    downloadCountSuffix: "次下載／分享請求（不代表已儲存人數）",
+    downloadCountSuffix: "次下載／分享請求",
     title: "華測會大頭照處理系統",
     passport: "護照號碼",
     name: "姓名",
@@ -71,7 +75,11 @@ const i18n = {
     sharePhoto: "Share / Save to Photos",
     closeSave: "Close save preview",
     saveHelp: "iPhone / iPad: choose Save Image or Save to Files in the share sheet, if available. Android: download the file or choose a share destination. If downloading does nothing, long-press the finished image below to save it. Open embedded browsers in Safari / Chrome.",
-    saveLimit: "This site can only observe a download request or share completion report, not whether the file was saved. Long-press saves are not counted. Sharing sends the photo to the destination you choose.",
+    thanksTitle: "Thanks for using this tool!",
+    thanksMessage: "Did this make preparing your photo easier? A little heart would make our day ❤️",
+    thanksReminder: "Remember to upload your photo to the official TOCFL website for review.",
+    closeReminder: "Continue",
+    dismissReminder: "Close reminder",
     downloadStarted: "Download requested. Check browser downloads. If no file appears, use sharing or long-press to save.",
     shareDone: "The share interface reported completion. Please check that your file was saved.",
     shareCancelled: "Sharing was cancelled or no destination was available. No download counted.",
@@ -81,7 +89,7 @@ const i18n = {
     sharing: "Complete or close the system share sheet…",
     imageFailed: "Could not read this photo. Select a valid JPG / PNG.",
     backgroundFailed: "Background removal failed; original image retained. Please use a white-background photo.",
-    downloadCountSuffix: "download / share requests (not confirmed saves)",
+    downloadCountSuffix: "download / share requests",
     title: "TOCFL ID Photo Processor",
     passport: "Passport No.",
     name: "Name",
@@ -123,7 +131,11 @@ const i18n = {
     sharePhoto: "Chia sẻ / Lưu vào Ảnh",
     closeSave: "Đóng bản xem trước",
     saveHelp: "iPhone / iPad: chọn Lưu hình ảnh hoặc Lưu vào Tệp trong bảng chia sẻ nếu có. Android: tải tệp hoặc chọn nơi chia sẻ. Nếu tải không phản hồi, nhấn giữ ảnh bên dưới để lưu. Với trình duyệt trong ứng dụng, hãy mở bằng Safari / Chrome.",
-    saveLimit: "Trang chỉ biết yêu cầu tải đã được gửi hoặc giao diện chia sẻ báo hoàn tất, không thể xác nhận tệp đã lưu. Nhấn giữ để lưu không được tính. Chia sẻ sẽ gửi ảnh đến nơi bạn chọn.",
+    thanksTitle: "Cảm ơn bạn đã sử dụng!",
+    thanksMessage: "Công cụ có giúp bạn chuẩn bị ảnh dễ dàng hơn không? Hãy gửi một trái tim để động viên chúng tôi nhé ❤️",
+    thanksReminder: "Đừng quên tự tải ảnh lên trang web chính thức của TOCFL để xét duyệt.",
+    closeReminder: "Tiếp tục sử dụng",
+    dismissReminder: "Đóng lời nhắc",
     downloadStarted: "Đã yêu cầu tải. Hãy kiểm tra mục tải xuống. Nếu chưa có tệp, dùng chia sẻ hoặc nhấn giữ ảnh.",
     shareDone: "Giao diện chia sẻ đã báo hoàn tất. Hãy kiểm tra tệp đã được lưu.",
     shareCancelled: "Đã hủy chia sẻ hoặc không có nơi nhận. Không tăng bộ đếm.",
@@ -133,7 +145,7 @@ const i18n = {
     sharing: "Hãy hoàn tất hoặc đóng bảng chia sẻ…",
     imageFailed: "Không đọc được ảnh. Hãy chọn ảnh JPG / PNG hợp lệ.",
     backgroundFailed: "Xóa nền thất bại; đang giữ ảnh gốc. Hãy dùng ảnh nền trắng.",
-    downloadCountSuffix: "yêu cầu tải / chia sẻ (không xác nhận đã lưu)",
+    downloadCountSuffix: "yêu cầu tải / chia sẻ",
     title: "Hệ thống xử lý ảnh TOCFL",
     passport: "Số hộ chiếu",
     name: "Họ và tên",
@@ -257,10 +269,26 @@ export default function App() {
   const [saveAsset, setSaveAsset] = useState(null);
   const [preparing, setPreparing] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [showThanks, setShowThanks] = useState(false);
+  const thanksDialogRef = useRef(null);
   const exportBusyRef = useRef(false);
   const sharingRef = useRef(false);
   const saveAssetRef = useRef(null);
   const exportVersionRef = useRef(0);
+
+  useEffect(() => {
+    if (!showThanks) return;
+    const dialog = thanksDialogRef.current;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    dialog.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [showThanks]);
 
   // Never persist photo data or identifying filenames. Revoke only when the
   // preview is replaced/closed, not immediately after clicking a download link.
@@ -638,6 +666,7 @@ export default function App() {
       document.body.appendChild(link);
       link.click(); // Synchronous inside a fresh user click; no awaited work.
       setSaveStatus("downloadStarted");
+      setShowThanks(true);
       void recordDownload(); // Request issued, not proof of a saved file.
     } catch { setSaveStatus("downloadFailed"); }
     finally { link.remove(); }
@@ -654,6 +683,7 @@ export default function App() {
       // canvas encoding/network traffic cannot consume transient activation.
       await navigator.share({ files: [asset.file] });
       setSaveStatus("shareDone");
+      setShowThanks(true);
       void recordDownload();
     } catch (err) {
       setSaveStatus(err?.name === "AbortError" ? "shareCancelled" : "shareFailed");
@@ -902,7 +932,6 @@ export default function App() {
                 <button type="button" onClick={clearSave} disabled={sharing} className="w-full border rounded-lg p-2">{t.closeSave}</button>
               </section>
             )}
-            <p className="text-xs text-gray-500">{t.saveLimit}</p>
           </div>
 
           <p className="mt-2 text-xs text-gray-500 text-center order-6 lg:order-none">
@@ -940,6 +969,40 @@ export default function App() {
       <footer className="max-w-7xl mx-auto mt-12 text-center text-gray-400 text-[10px] uppercase tracking-widest">
         Local Browser Execution Only
       </footer>
+
+      <dialog
+        ref={thanksDialogRef}
+        aria-labelledby="thanks-title"
+        aria-describedby="thanks-message"
+        onCancel={() => setShowThanks(false)}
+        onClose={() => setShowThanks(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setShowThanks(false);
+        }}
+        className="fixed inset-0 m-auto w-11/12 max-w-md max-h-[90dvh] overflow-y-auto rounded-3xl border-0 p-0 shadow-2xl backdrop:bg-slate-900/50"
+      >
+        <div className="relative bg-white p-6 sm:p-8 text-center">
+          <button type="button" aria-label={t.dismissReminder} onClick={() => setShowThanks(false)} className="absolute right-2 top-2 w-11 h-11 rounded-full text-2xl text-gray-500 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-pink-500">×</button>
+          <div aria-hidden="true" className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-pink-50 text-5xl">💝</div>
+          <h2 id="thanks-title" className="text-xl font-bold text-pink-700">{hasLiked ? t.likedButton : t.thanksTitle}</h2>
+          <p id="thanks-message" className="mt-3 text-sm leading-relaxed text-gray-600">{hasLiked ? t.thanksReminder : t.thanksMessage}</p>
+          <button
+            type="button"
+            onClick={handleLike}
+            disabled={hasLiked || likeLoading}
+            className="mt-5 w-full rounded-full bg-pink-500 px-4 py-4 text-sm font-bold text-white shadow-md transition hover:bg-pink-600 disabled:bg-pink-100 disabled:text-pink-700 disabled:cursor-default"
+          >
+            ❤️ {hasLiked ? t.likedButton : t.likeButton}
+          </button>
+          <p className="mt-2 text-sm text-gray-500">👍 {likes} {t.likes}</p>
+          <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left text-xs leading-relaxed text-amber-900">
+            <p className="mb-1 font-bold">{t.disclaimerTitle}</p>
+            <p>{t.disclaimer}</p>
+            <p className="mt-2">{t.thanksReminder}</p>
+          </div>
+          <button type="button" onClick={() => setShowThanks(false)} className="mt-4 w-full rounded-xl border border-gray-200 py-3 text-sm text-gray-600 hover:bg-gray-50">{t.closeReminder}</button>
+        </div>
+      </dialog>
     </div>
   );
 }

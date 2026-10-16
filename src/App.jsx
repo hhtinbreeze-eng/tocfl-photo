@@ -20,7 +20,6 @@ const i18n = {
     closeSave: "關閉儲存預覽",
     saveHelp: "iPhone／iPad：可在分享選單選「儲存影像」或「儲存到檔案」（依裝置而異）。Android：可下載檔案，或選擇分享目的地。若下載無反應，請長按下方成品圖儲存；內建瀏覽器請改用 Safari／Chrome。",
     thanksTitle: "謝謝使用，希望有幫上忙！",
-    thanksMessage: "如果這項服務讓準備照片更輕鬆，歡迎送上一顆愛心，給我們一點鼓勵 ❤️",
     thanksReminder: "記得將照片自行上傳至華測會官方網站送審。",
     closeReminder: "繼續使用",
     dismissReminder: "關閉提醒",
@@ -76,7 +75,6 @@ const i18n = {
     closeSave: "Close save preview",
     saveHelp: "iPhone / iPad: choose Save Image or Save to Files in the share sheet, if available. Android: download the file or choose a share destination. If downloading does nothing, long-press the finished image below to save it. Open embedded browsers in Safari / Chrome.",
     thanksTitle: "Thanks for using this tool!",
-    thanksMessage: "Did this make preparing your photo easier? A little heart would make our day ❤️",
     thanksReminder: "Remember to upload your photo to the official TOCFL website for review.",
     closeReminder: "Continue",
     dismissReminder: "Close reminder",
@@ -132,7 +130,6 @@ const i18n = {
     closeSave: "Đóng bản xem trước",
     saveHelp: "iPhone / iPad: chọn Lưu hình ảnh hoặc Lưu vào Tệp trong bảng chia sẻ nếu có. Android: tải tệp hoặc chọn nơi chia sẻ. Nếu tải không phản hồi, nhấn giữ ảnh bên dưới để lưu. Với trình duyệt trong ứng dụng, hãy mở bằng Safari / Chrome.",
     thanksTitle: "Cảm ơn bạn đã sử dụng!",
-    thanksMessage: "Công cụ có giúp bạn chuẩn bị ảnh dễ dàng hơn không? Hãy gửi một trái tim để động viên chúng tôi nhé ❤️",
     thanksReminder: "Đừng quên tự tải ảnh lên trang web chính thức của TOCFL để xét duyệt.",
     closeReminder: "Tiếp tục sử dụng",
     dismissReminder: "Đóng lời nhắc",
@@ -973,7 +970,6 @@ export default function App() {
       <dialog
         ref={thanksDialogRef}
         aria-labelledby="thanks-title"
-        aria-describedby="thanks-message"
         onCancel={() => setShowThanks(false)}
         onClose={() => setShowThanks(false)}
         onClick={(event) => {
@@ -985,7 +981,6 @@ export default function App() {
           <button type="button" aria-label={t.dismissReminder} onClick={() => setShowThanks(false)} className="absolute right-2 top-2 w-11 h-11 rounded-full text-2xl text-gray-500 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-pink-500">×</button>
           <div aria-hidden="true" className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-pink-50 text-5xl">💝</div>
           <h2 id="thanks-title" className="text-xl font-bold text-pink-700">{hasLiked ? t.likedButton : t.thanksTitle}</h2>
-          <p id="thanks-message" className="mt-3 text-sm leading-relaxed text-gray-600">{hasLiked ? t.thanksReminder : t.thanksMessage}</p>
           <button
             type="button"
             onClick={handleLike}
